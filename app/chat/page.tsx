@@ -22,29 +22,50 @@ const bubbleBase: React.CSSProperties = {
   fontSize: 14,
 };
 
+function loadJson<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
 export default function ChatPage() {
   const router = useRouter();
+
   const [data, setData] = useState<Stored | null>(null);
   const [active, setActive] = useState<"past" | "future">("past");
+
   const [pastMsgs, setPastMsgs] = useState<Msg[]>([]);
   const [futureMsgs, setFutureMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+
   const sendingRef = useRef(false);
 
+  // ---- load profile + restore chat if exists ----
   useEffect(() => {
-    const raw = localStorage.getItem("temporalSelves");
-    if (!raw) return;
-    const parsed = JSON.parse(raw) as Stored;
-    setData(parsed);
+    const profile = loadJson<Stored>("temporalSelves");
+    if (!profile) return;
+    setData(profile);
 
+    const saved = loadJson<any>("temporalSelvesWithChat");
+    if (saved?.chat?.past?.length || saved?.chat?.future?.length) {
+      setPastMsgs(saved.chat.past ?? []);
+      setFutureMsgs(saved.chat.future ?? []);
+      return;
+    }
+
+    // init greetings (one per persona)
     const p0: Msg = {
       role: "assistant",
-      content: `Hi — I’m your past self “${parsed.pastSelf.name}”.\nWhat’s bothering you right now?`,
+      content: `Hi — I’m your past self “${profile.pastSelf.name}”. What’s bothering you right now?`,
       ts: Date.now(),
     };
     const f0: Msg = {
       role: "assistant",
-      content: `Hi — I’m your future self “${parsed.futureSelf.name}”.\nWhat’s bothering you right now?`,
+      content: `Hi — I’m your future self “${profile.futureSelf.name}”. What’s bothering you right now?`,
       ts: Date.now(),
     };
     setPastMsgs([p0]);
@@ -56,28 +77,48 @@ export default function ChatPage() {
   const systemPrompt = useMemo(() => {
     if (!data) return "";
     const self = active === "past" ? data.pastSelf : data.futureSelf;
+
+    // 关键：shortBio 明确写进去，并且强约束“必须一致”
     return `
 You are the user's ${active} self.
-Name: ${self.name}
-Short bio: ${self.shortBio}
 
-Speak in first person. Be reflective and supportive.
-Ask at most one gentle follow-up question.
-Keep replies concise (2–6 sentences).
+Identity you must embody:
+- Name: ${self.name}
+- Short bio: ${self.shortBio}
+
+Rules:
+- Speak in first person as ${self.name}.
+- Stay consistent with the short bio at all times.
+- Be reflective and supportive, not clinical.
+- Ask at most one gentle follow-up question.
+- Keep responses concise (2–6 sentences).
 `.trim();
   }, [data, active]);
 
-  async function callLLM(userText: string, history: Msg[]): Promise<string> {
-    const messages = history
+  function persist(nextPast: Msg[], nextFuture: Msg[]) {
+    if (!data) return;
+    localStorage.setItem(
+      "temporalSelvesWithChat",
+      JSON.stringify({
+        ...data,
+        chat: { past: nextPast, future: nextFuture },
+        updatedAt: new Date().toISOString(),
+      })
+    );
+  }
+
+  async function callLLM(persona: "past" | "future", fullHistory: Msg[], userText: string) {
+    // 关键：把该 persona 的历史一起发过去（否则不“定制”）
+    const messages = fullHistory
       .filter((m) => m.content !== "…")
-      .slice(-8)
+      .slice(-12) // 最近 12 条，够用也省 token
       .map((m) => ({ role: m.role, content: m.content }));
 
     const res = await fetch("/api/openai-chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        systemPrompt,
+        systemPrompt, // 注意：systemPrompt 已经根据 active persona 生成
         messages: [...messages, { role: "user", content: userText }],
       }),
     });
@@ -96,38 +137,29 @@ Keep replies concise (2–6 sentences).
     const userMsg: Msg = { role: "user", content: text, ts: Date.now() };
     const thinking: Msg = { role: "assistant", content: "…", ts: Date.now() + 1 };
 
-    if (active === "past") setPastMsgs((m) => [...m, userMsg, thinking]);
-    else setFutureMsgs((m) => [...m, userMsg, thinking]);
-
     setInput("");
 
-    const history = active === "past" ? [...pastMsgs, userMsg] : [...futureMsgs, userMsg];
-    const reply = await callLLM(text, history);
-    const assistantMsg: Msg = { role: "assistant", content: reply, ts: Date.now() + 2 };
-
     if (active === "past") {
-      setPastMsgs((m) => {
-        const mm = [...m];
-        mm[mm.length - 1] = assistantMsg;
-        return mm;
-      });
-    } else {
-      setFutureMsgs((m) => {
-        const mm = [...m];
-        mm[mm.length - 1] = assistantMsg;
-        return mm;
-      });
-    }
+      const base = [...pastMsgs, userMsg, thinking];
+      setPastMsgs(base);
 
-    // persist
-    localStorage.setItem(
-      "temporalSelvesWithChat",
-      JSON.stringify({
-        ...data,
-        chat: { past: active === "past" ? [...history, assistantMsg] : pastMsgs, future: active === "future" ? [...history, assistantMsg] : futureMsgs },
-        updatedAt: new Date().toISOString(),
-      })
-    );
+      const reply = await callLLM("past", [...pastMsgs], text);
+      const assistantMsg: Msg = { role: "assistant", content: reply, ts: Date.now() + 2 };
+
+      const finalPast = [...pastMsgs, userMsg, assistantMsg];
+      setPastMsgs(finalPast);
+      persist(finalPast, futureMsgs);
+    } else {
+      const base = [...futureMsgs, userMsg, thinking];
+      setFutureMsgs(base);
+
+      const reply = await callLLM("future", [...futureMsgs], text);
+      const assistantMsg: Msg = { role: "assistant", content: reply, ts: Date.now() + 2 };
+
+      const finalFuture = [...futureMsgs, userMsg, assistantMsg];
+      setFutureMsgs(finalFuture);
+      persist(pastMsgs, finalFuture);
+    }
 
     sendingRef.current = false;
   }
@@ -141,7 +173,10 @@ Keep replies concise (2–6 sentences).
       <main style={{ maxWidth: 900, margin: "40px auto", padding: 16 }}>
         <h1>Chat</h1>
         <p>No profile found. Go back to Customize.</p>
-        <button onClick={() => router.push("/")} style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cfcfcf", background: "#f0f0f0" }}>
+        <button
+          onClick={() => router.push("/")}
+          style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cfcfcf", background: "#f0f0f0" }}
+        >
           Back
         </button>
       </main>
@@ -152,7 +187,10 @@ Keep replies concise (2–6 sentences).
     <main style={{ maxWidth: 1100, margin: "24px auto", padding: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
         <h1 style={{ margin: 0 }}>Chat</h1>
-        <button onClick={next} style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cfcfcf", background: "#f0f0f0", cursor: "pointer" }}>
+        <button
+          onClick={next}
+          style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cfcfcf", background: "#f0f0f0", cursor: "pointer" }}
+        >
           Next → Reflection
         </button>
       </div>
@@ -160,6 +198,21 @@ Keep replies concise (2–6 sentences).
       <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
         <Tab active={active === "past"} title={`Past: ${data.pastSelf.name}`} onClick={() => setActive("past")} />
         <Tab active={active === "future"} title={`Future: ${data.futureSelf.name}`} onClick={() => setActive("future")} />
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+          padding: 12,
+          border: "1px solid #e2e2e2",
+          borderRadius: 10,
+          background: "#fafafa",
+          fontSize: 13,
+          color: "#444",
+        }}
+      >
+        <div style={{ fontWeight: 600 }}>{active === "past" ? data.pastSelf.name : data.futureSelf.name}</div>
+        <div style={{ marginTop: 4 }}>{active === "past" ? data.pastSelf.shortBio : data.futureSelf.shortBio}</div>
       </div>
 
       <div style={{ marginTop: 14, height: 420, border: "1px solid #e2e2e2", borderRadius: 10, padding: 12, overflowY: "auto", background: "#fff" }}>
