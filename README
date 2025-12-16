@@ -1,1 +1,25 @@
 This is a README file
+temporal-self-chat/
+├─ src/
+│  ├─ app/
+│  │  ├─ layout.tsx          # layout（load DF script）
+│  │  ├─ page.tsx            # launching page = Customize selves
+│  │  ├─ chat/
+│  │  │  └─ page.tsx         # Chat（past / future）
+│  │  ├─ reflection/
+│  │  │  └─ page.tsx         # Reflection
+│  │  └─ api/
+│  │     └─ save-to-df/
+│  │        └─ route.ts      # Data Foundry dataset
+│  ├─ lib/
+│  │  ├─ df.ts               # Data Foundry client helpe
+│  │  └─ session.ts          # sessionId generator
+│  └─ types/
+│     └─ index.ts          
+├─ public/
+│  └─ placeholder-avatar.png
+├─ .env.local                # DF_API_TOKEN（no commit）
+├─ .gitignore
+├─ package.json
+├─ tsconfig.json
+└─ README.md
