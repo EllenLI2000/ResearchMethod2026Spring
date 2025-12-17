@@ -126,7 +126,7 @@ export default function CustomizePage() {
 
       {!canProceed ? (
         <p style={{ marginTop: 10, fontSize: 12, color: "#666" }}>
-          Please fill in <b>Name</b> and <b>Short bio</b> for both selves to continue.
+          <b>Please do not enter any sensitive data that you are not comfortable sharing with others. All the data will be visible to the research team and will be used for data analysis. </b>
         </p>
       ) : null}
     </main>
