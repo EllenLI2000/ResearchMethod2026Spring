@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { dfUpsertSession } from "@/lib/dfClient";
 
 type Msg = {
   role: "user" | "assistant";
@@ -104,6 +105,12 @@ export default function ReflectionPage() {
      * Students may redirect to a thank-you page or external survey here.
      * =========================
      */
+    await dfUpsertSession(data?.sessionId || "unknown", {
+  reflection: {
+    answers,
+    finishedAt: new Date().toISOString(),
+  },
+});
     alert("Thank you for your reflection.");
     router.push("/");
   }
