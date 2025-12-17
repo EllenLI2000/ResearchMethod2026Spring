@@ -88,7 +88,7 @@ export default function ReflectionPage() {
     setAnswers((prev) => ({ ...prev, [key]: value }));
   }
 
-  function finish() {
+  async function finish() {
     // Save reflection answers locally (prototype-friendly)
     localStorage.setItem(
       "temporalSelvesReflection",
