@@ -2,83 +2,45 @@ Temporal Selves Chat
 
 This repository contains a web-based prototype that allows participants to:
 
-Define a Past Self and a Future Self
-
-Chat with each self as a separate conversational agent
-
-Reflect on differences between the two conversations
+1. Define a Past Self and a Future Self
+2. Chat with each self as a separate conversational agent
+3. Reflect on differences between the two conversations
 
 The overall interaction flow is fixed, while content, framing, and wording are customizable.
 
-App Flow (Do Not Change)
-
+Do not change the overall interaction flow
 The app always follows this sequence:
-
-Customize
-
-Participants define a Past Self and a Future Self
-
-Each self includes:
-
-Name
-
-Age (optional)
-
-Short bio
-
-Description
-
-Chat
-
-Participants chat separately with:
-
-Past Self
-
-Future Self
-
-Each self responds based on the descriptions written in the first step
-
-Reflection
-
-Participants answer reflection questions after chatting
-
+1. Customize: Participants define a Past Self and a Future Self
+2. Chat separately with Past Self and Future Self (Each self responds based on the descriptions written in the first step)
+3. Reflection: Participants answer reflection questions after chatting
 ⚠️ Do not change the order or remove any step.
+
+However, you can use your creativity and research mind to change the app based on the needs of your research:
+1. Wording and framing;
+2. What can be customized (you may want to add a cusotmized avatar or other traits that your research needs)
+3. The conversation topics
+4. The appearance of the website
+Throughout the codebase, you will see comments marked: STUDENT-EDITABLE ZONE
+
 
 Getting Started
 1. Fork the repository
-
 Click Fork on GitHub and work from your own copy.
 
 2. Install dependencies
-
-From the repository root, run:
-
-npm install
+From the repository root, run at terminal: npm install
 
 3. Set up the API key
-
 Create a file called .env.local in the repository root with the following content:
-
 OPENAI_API_KEY=your_api_key_here
+⚠️ Do not commit this file (You can use Codespace in GitHub)
+⚠️The app will not work without a valid API key and available credit
+
+4. Run the app: npm run dev
+
+5. Then open the portal
 
 
-Do not commit this file
-
-The app will not work without a valid API key and available credit
-
-4. Run the app
-npm run dev
-
-
-Then open:
-
-http://localhost:3000
-
-What You Can Customize
-
-Throughout the codebase, you will see comments marked:
-
-STUDENT-EDITABLE ZONE
 
 These indicate places where you can safely make changes.
 
@@ -116,56 +78,33 @@ If something breaks, first revert changes outside the editable zones.
 
 Notes on Chat Behavior
 
-The Past Self and Future Self are implemented as two distinct conversational agents
-
-Each agent is shaped by:
-
-the participant-written short bio
-
-the longer description
-
+The Past Self and Future Self are implemented as two distinct conversational agents. Each agent is shaped by:
+1. the participant-written short bio
+2. the longer description
 a built-in safeguard layer that encourages supportive, constructive responses
-
 Responses are not intended as professional, medical, or therapeutic advice
 
 Deployment (Optional)
-
-If you want to share this app with participants:
-
-You can deploy it using Vercel or a similar service
-
+If you want to share this app with participants: You can deploy it using Vercel or a similar service
 Store the API key as an environment variable on the server
-
 Be aware that each chat message uses the OpenAI API and may incur cost
 
+
 Data & Privacy
-
 By default:
-
 Data is stored locally in the participant’s browser
-
 No login or authentication is required
-
 No personally identifiable information is enforced
-
 If you plan to collect or export data, you are responsible for handling consent and storage appropriately.
 
 Troubleshooting
-
 App does not start → Check Node version (Node ≥ 18 required)
-
 Chat replies fail → Check API key validity and account credit
-
 Layout breaks after editing → Revert changes outside editable zones
 
 Summary
-
 This repository provides:
-
 A ready-to-run prototype
-
 Clear customization points
-
 A stable interaction structure
-
 Use it as a base and adapt the content and framing, not the core flow.
