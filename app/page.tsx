@@ -64,6 +64,14 @@ export default function CustomizePage() {
         futureSelf: future,
       })
     );
+    await dfUpsertSession(sessionId, {
+      sessionId,
+      createdAt: new Date().toISOString(),
+      customization: {
+        pastSelf: past,
+        futureSelf: future,
+      },
+    });
 
     router.push("/chat");
   }
