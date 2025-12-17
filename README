@@ -1,49 +1,171 @@
-# Temporal Selves Chat
+Temporal Selves Chat
 
 This repository contains a web-based prototype that allows participants to:
 
-1. **Define a Past Self and a Future Self**
-2. **Chat with each self as a separate conversational agent**
-3. **Reflect on differences between the two conversations**
+Define a Past Self and a Future Self
 
-The overall interaction flow is fixed, while **content, framing, and wording are customizable**.
+Chat with each self as a separate conversational agent
 
----
+Reflect on differences between the two conversations
 
-## App Flow (Do Not Change)
+The overall interaction flow is fixed, while content, framing, and wording are customizable.
+
+App Flow (Do Not Change)
 
 The app always follows this sequence:
 
-1. **Customize**
-   - Participants define a *Past Self* and a *Future Self*
-   - Each self includes:
-     - Name
-     - Age (optional)
-     - Short bio
-     - Description
+Customize
 
-2. **Chat**
-   - Participants chat separately with:
-     - their Past Self
-     - their Future Self
-   - Each self responds based on the description written in the first step
+Participants define a Past Self and a Future Self
 
-3. **Reflection**
-   - Participants answer reflection questions after chatting
+Each self includes:
 
-⚠️ **Do not change the order or remove any step.**
+Name
 
----
+Age (optional)
 
-## Getting Started
+Short bio
 
-### 1. Fork the Repository
-Click **Fork** on GitHub and work from your own copy.
+Description
 
----
+Chat
 
-### 2. Install Dependencies
-From the repository root:
+Participants chat separately with:
 
-```bash
+Past Self
+
+Future Self
+
+Each self responds based on the descriptions written in the first step
+
+Reflection
+
+Participants answer reflection questions after chatting
+
+⚠️ Do not change the order or remove any step.
+
+Getting Started
+1. Fork the repository
+
+Click Fork on GitHub and work from your own copy.
+
+2. Install dependencies
+
+From the repository root, run:
+
 npm install
+
+3. Set up the API key
+
+Create a file called .env.local in the repository root with the following content:
+
+OPENAI_API_KEY=your_api_key_here
+
+
+Do not commit this file
+
+The app will not work without a valid API key and available credit
+
+4. Run the app
+npm run dev
+
+
+Then open:
+
+http://localhost:3000
+
+What You Can Customize
+
+Throughout the codebase, you will see comments marked:
+
+STUDENT-EDITABLE ZONE
+
+These indicate places where you can safely make changes.
+
+Typical customization points include:
+
+Page titles and explanatory text
+
+Field labels and placeholder wording
+
+How the Past Self and Future Self are framed
+
+The tone and guidance rules used in the chat (safeguards)
+
+Reflection questions shown after the chat
+
+Which fields are required vs. optional
+
+You are encouraged to adapt wording, framing, and prompts.
+
+What You Should NOT Change
+
+To keep the system functional, do not:
+
+Remove either the Past Self or the Future Self
+
+Merge the two chats into one conversation
+
+Change the page order (Customize → Chat → Reflection)
+
+Remove the safeguard layer in the chat prompts
+
+Modify the API route unless you know what you are doing
+
+If something breaks, first revert changes outside the editable zones.
+
+Notes on Chat Behavior
+
+The Past Self and Future Self are implemented as two distinct conversational agents
+
+Each agent is shaped by:
+
+the participant-written short bio
+
+the longer description
+
+a built-in safeguard layer that encourages supportive, constructive responses
+
+Responses are not intended as professional, medical, or therapeutic advice
+
+Deployment (Optional)
+
+If you want to share this app with participants:
+
+You can deploy it using Vercel or a similar service
+
+Store the API key as an environment variable on the server
+
+Be aware that each chat message uses the OpenAI API and may incur cost
+
+Data & Privacy
+
+By default:
+
+Data is stored locally in the participant’s browser
+
+No login or authentication is required
+
+No personally identifiable information is enforced
+
+If you plan to collect or export data, you are responsible for handling consent and storage appropriately.
+
+Troubleshooting
+
+App does not start → Check Node version (Node ≥ 18 required)
+
+Chat replies fail → Check API key validity and account credit
+
+Layout breaks after editing → Revert changes outside editable zones
+
+Summary
+
+This repository provides:
+
+A ready-to-run prototype
+
+Clear customization points
+
+A stable interaction structure
+
+Use it as a base and adapt the content and framing, not the core flow.
