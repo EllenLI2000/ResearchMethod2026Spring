@@ -1,25 +1,49 @@
-This is a README file
-temporal-self-chat/
-├─ src/
-│  ├─ app/
-│  │  ├─ layout.tsx          # layout（load DF script）
-│  │  ├─ page.tsx            # launching page = Customize selves
-│  │  ├─ chat/
-│  │  │  └─ page.tsx         # Chat（past / future）
-│  │  ├─ reflection/
-│  │  │  └─ page.tsx         # Reflection
-│  │  └─ api/
-│  │     └─ save-to-df/
-│  │        └─ route.ts      # Data Foundry dataset
-│  ├─ lib/
-│  │  ├─ df.ts               # Data Foundry client helpe
-│  │  └─ session.ts          # sessionId generator
-│  └─ types/
-│     └─ index.ts          
-├─ public/
-│  └─ placeholder-avatar.png
-├─ .env.local                # DF_API_TOKEN（no commit）
-├─ .gitignore
-├─ package.json
-├─ tsconfig.json
-└─ README.md
+# Temporal Selves Chat
+
+This repository contains a web-based prototype that allows participants to:
+
+1. **Define a Past Self and a Future Self**
+2. **Chat with each self as a separate conversational agent**
+3. **Reflect on differences between the two conversations**
+
+The overall interaction flow is fixed, while **content, framing, and wording are customizable**.
+
+---
+
+## App Flow (Do Not Change)
+
+The app always follows this sequence:
+
+1. **Customize**
+   - Participants define a *Past Self* and a *Future Self*
+   - Each self includes:
+     - Name
+     - Age (optional)
+     - Short bio
+     - Description
+
+2. **Chat**
+   - Participants chat separately with:
+     - their Past Self
+     - their Future Self
+   - Each self responds based on the description written in the first step
+
+3. **Reflection**
+   - Participants answer reflection questions after chatting
+
+⚠️ **Do not change the order or remove any step.**
+
+---
+
+## Getting Started
+
+### 1. Fork the Repository
+Click **Fork** on GitHub and work from your own copy.
+
+---
+
+### 2. Install Dependencies
+From the repository root:
+
+```bash
+npm install
