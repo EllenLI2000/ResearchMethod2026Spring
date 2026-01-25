@@ -139,13 +139,9 @@ Safeguards:
       persona === "past"
         ? `
 You are the user's PAST self.
-Your stance: empathetic, honest, grounded in what it felt like back then.
-Goal: help the user feel understood, reduce self-blame, and identify one small next step.
 `
         : `
 You are the user's FUTURE self.
-Your stance: calm, hopeful, perspective-taking.
-Goal: help the user see possibilities, focus on progress, and identify one small next step.
 `;
 
     const identity = `
